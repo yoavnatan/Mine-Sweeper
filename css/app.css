@@ -1,0 +1,39 @@
+body {
+    background-color: gray;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: aliceblue;
+    color: black;
+}
+
+.board-container {
+    border-collapse: collapse;
+
+    border: 2px ridge black;
+}
+
+
+.cell {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    /* background-color: rgb(234, 234, 234); */
+    border: 2px ridge black;
+}
+
+.hide {
+    display: none;
+}
+
+.revealed {
+    background-color: gray;
+    color: white;
+    border-radius: 5%;
+}
+
+.mine-clicked {
+    background-color: red;
+    border-radius: 5%;
+}
