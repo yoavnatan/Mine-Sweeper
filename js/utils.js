@@ -28,3 +28,17 @@ function createMat(ROWS, COLS) {
     }
     return mat
 }
+
+function getClassName(location) { //returns cell-i-j
+    const cellClass = `cell-${location.i}-${location.j}`
+    console.log('CellClass', cellClass)
+    return cellClass
+}
+
+function renderCell(location, value) { //{i,j}, value to render in the cell
+    const cellSelector = `.` + getClassName(location)
+
+    const elCell = document.querySelector(cellSelector)
+    elCell.innerText = value
+
+}
