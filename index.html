@@ -9,18 +9,30 @@
 </head>
 
 <body onload="onInit()">
-    <h1>Mine Sweeper</h1>
+    <h1 class=>Mine Sweeper</h1>
 
 
+    <div class="info-container">
+        <h3 class="lives-counter"><span></span> LIVES LEFT</h3>
+        <h2 class="timer"><span>0.000</span>s</h2>
+
+
+    </div>
+    <div class="modal-container hide">
+        <h1><span>!!!</span></h1>
+    </div>
     <table class="board-container">
         <tbody></tbody>
     </table>
 
 
 
-    <div>
+    <div class="footer">
+        <button class="smiley-button" onclick="onRestartClicked()"></button>
         <h3>by Yoav Natan</h3>
     </div>
+
+
 
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>

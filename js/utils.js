@@ -42,3 +42,20 @@ function renderCell(location, value) { //{i,j}, value to render in the cell
     elCell.innerText = value
 
 }
+
+function renderElement(selection, value) {
+
+    var el = document.querySelector(selection)
+    el.classList.remove('hide')
+    var elSpan = document.querySelector(`${selection} span`)
+    elSpan.innerText = value
+
+}
+
+function hideElement(selection) {
+
+    var el = document.querySelector(selection)
+    el.classList.add('hide')
+
+}
+
