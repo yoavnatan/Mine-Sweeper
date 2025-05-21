@@ -8,15 +8,19 @@
     <link rel="stylesheet" href="css/app.css">
 </head>
 
-<body onload="onInit()">
+<body onload="onInit(begginer)">
     <h1 class=>Mine Sweeper</h1>
 
 
     <div class="info-container">
         <h3 class="lives-counter"><span></span> LIVES LEFT</h3>
-        <h2 class="timer"><span>0.000</span>s</h2>
+        <h2 class="timer"><span></span>s</h2>
 
-
+        <table class="hints">
+            <tbody></tbody>
+        </table>
+        <button class="safe-click" onclick="onSafeClicked()"><span></span> Safe Click</button>
+        <button class="undo-btn" onclick="onUndoClicked()">Undo</button>
     </div>
     <div class="modal-container hide">
         <h1><span>!!!</span></h1>
@@ -29,13 +33,24 @@
 
     <div class="footer">
         <button class="smiley-button" onclick="onRestartClicked()"></button>
-        <h3>by Yoav Natan</h3>
-    </div>
+
+        <div class="levels">
+            <button onclick="onInit(begginer)">Begginer</button>
+            <button onclick="onInit(interMediate)">Intermediate</button>
+            <button onclick="onInit(expert)">Expert</button>
+            <button class="manually-create" onclick="onManualyClicked()">Manually create</button>
+
+
+            <div>
+                <h4 class="best-score"> Best score: <span></span></h4>
+                <button class="dark-mode-btn" onclick="onDarkModeClicked(this)">Dark Mode</button>
+                <h3>by Yoav Natan</h3>
+            </div>
 
 
 
-    <script src="js/utils.js"></script>
-    <script src="js/game.js"></script>
+            <script src="js/utils.js"></script>
+            <script src="js/game.js"></script>
 
 </body>
 
