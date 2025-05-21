@@ -1,14 +1,18 @@
 body {
-    background-color: rgb(0, 93, 40);
+
+    background-color: rgba(232, 255, 225, 0.747);
+    color: blue;
     text-align: center;
     align-items: center;
     display: flex;
     flex-direction: column;
 
-    color: rgb(255, 255, 255);
 }
 
-
+.body-dark-on {
+    background-color: rgb(0, 93, 40);
+    color: rgb(255, 255, 255);
+}
 
 .board-container {
 
@@ -16,13 +20,52 @@ body {
     border: 2px ridge black;
 }
 
+.hints {
+    /* width: 30px; */
+    /* height: 20px; */
+    margin-left: 8px;
+    text-align: center;
+    border: 2px solid gray;
+    background-color: black;
+}
+
+.hint-off {
+    width: 30px;
+    height: 20px;
+    /* background-color: rgb(11, 11, 11); */
+}
+
+.hint-on {
+    width: 30px;
+    height: 20px;
+    background-color: rgb(248, 255, 123);
+}
+
+.safe-click {
+    background-color: black;
+    /* border: 2px solid gray; */
+    margin-top: 10px;
+    color: white;
+}
 
 .cell {
     width: 30px;
     height: 30px;
     text-align: center;
-    background-color: rgba(226, 226, 226, 0.747);
+    background-color: rgb(94, 185, 255);
     border: 2px ridge black;
+}
+
+.hover-effect:hover {
+    background-color: aqua;
+}
+
+.cell-dark-on {
+    background-color: rgba(226, 226, 226, 0.747);
+}
+
+.hover-effect-dark:hover {
+    background-color: rgb(144, 251, 144);
 }
 
 .hide {
@@ -31,10 +74,16 @@ body {
 
 }
 
+.revealed-hint {
+    background-color: rgb(255, 169, 98);
+    color: rgb(0, 0, 0);
+
+}
+
 .revealed {
     background-color: gray;
     color: white;
-    border-radius: 5%;
+
 }
 
 .mine-clicked {
@@ -43,15 +92,48 @@ body {
 }
 
 .modal-container {
-    background-color: yellowgreen;
-    height: 60px;
+    background-color: #1e00ff;
+    height: 50px;
+    color: rgb(255, 255, 255);
+    padding-bottom: 20px;
+    margin: 10px;
+    width: 410px;
     /* position: relative; */
     /* left: 30px; */
     /* position: absolute; */
 
 }
 
+.modal-container-dark-on {
+    background-color: yellowgreen;
+    color: black;
+}
+
+.levels {
+    margin: 20px;
+}
+
 .footer {
     margin: 20px;
     /* float: middle; */
+}
+
+/* .best-score {/ */
+/* text-align: left; */
+/* padding-left: 70px; */
+
+/* } */
+
+.safe-location {
+    background-color: orange;
+}
+
+.dark-mode-btn {
+    background-color: grey;
+    color: whitesmoke;
+}
+
+.dark-mode-btn-on {
+    background-color: whitesmoke;
+    color: grey;
 }
