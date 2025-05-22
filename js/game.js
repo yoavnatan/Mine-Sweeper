@@ -11,34 +11,29 @@ var gHints
 var gSafeClickCount
 var gManualMines
 var gIsDarkMode = false
-var gHistoryBoard = []
-var gHistoryGame = []
-
+var gHistoryBoard
+var gHistoryGame
 var begginer = {
     bestScore: localStorage.getItem('begginer'),
     SIZE: 4,
     MINES: 2,
 
 }
-
 var interMediate = {
     SIZE: 6,
     MINES: 5,
     bestScore: localStorage.getItem('intermediate'),
 }
-
 var expert = {
     SIZE: 12,
     MINES: 9,
     bestScore: localStorage.getItem('expert'),
 }
-
-
 var gLevel = begginer
 
 
 function onInit(level) {
-
+    stopTimer()
     gLevel = level
     gManualMines = level.MINES
     gGame = {
@@ -48,7 +43,10 @@ function onInit(level) {
         secsPassed: 0,
         lives: 2,
         hintIsOn: false,
+        isMegaHintOn: false,
+        megaCells: [],
         isManualMode: false,
+        steps: 0,
 
     }
     gBoard = buildBoard()
@@ -65,7 +63,8 @@ function onInit(level) {
     elSafeClick.innerText = gSafeClickCount
     gHints = createHints()
     renderHints()
-
+    gHistoryBoard = []
+    gHistoryGame = []
 
 }
 
@@ -87,7 +86,6 @@ function buildBoard() {
 
     return board
 }
-
 
 function renderBoard() {
     var strHTML = ''
@@ -129,17 +127,31 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
 
 function onCellClicked(elCell, i, j) {
 
-    gHistoryBoard.push(gBoard)
-    gHistoryGame.push(gGame)
+
     if (!gGame.isOn && gGame.reavealedCount !== 0) return
     const currCell = gBoard[i][j]
     if (currCell.isMarked) return
+
     if (currCell.isRevealed) return
+
 
     if (gGame.isManualMode && gManualMines > 0) {
         placeMine(currCell, elCell)
         return
     }
+
+    // undo function preperations:
+    const lastBoard = copyMat(gBoard)
+    const lastGGame = {
+        reavealedCount: gGame.reavealedCount,
+        markedCount: gGame.markedCount
+    }
+
+    gHistoryBoard.push(lastBoard)
+    gHistoryGame.push(lastGGame)
+    gGame.steps++
+
+    // end of undo preperations
 
     if (!gGame.isOn) {
         createMines(gBoard, i, j)
@@ -151,6 +163,12 @@ function onCellClicked(elCell, i, j) {
     if (gGame.hintIsOn) {
         revealNegs(i, j)
         return
+    }
+
+    if (gGame.isMegaHintOn) {
+        clickToRevealMega({ i, j })
+        return
+
     }
 
     currCell.isRevealed = true
@@ -175,12 +193,53 @@ function onCellClicked(elCell, i, j) {
     checkGameOver(currCell)
 }
 
+function onUndoClicked() {
+    if (gGame.reavealedCount === 0) return
+    if (gGame.steps === 1) {
+        onInit(gLevel)
+        return
+    }
+    gGame.steps--
+    gBoard = gHistoryBoard.pop()
+    const lastGGame = gHistoryGame.pop()
+    gGame.reavealedCount = lastGGame.reavealedCount
+    gGame.markedCount = lastGGame.markedCount
+
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            const prevCell = gBoard[i][j]
+            const cellSelector = `.` + getClassName({ i, j })
+            const elCell = document.querySelector(cellSelector)
+            if (!prevCell.isRevealed && !prevCell.isMarked) {
+                elCell.classList.remove('revealed')
+                elCell.innerText = ''
+            }
+        }
+
+    }
+
+}
+
 function onCellRightClicked(elCell, ev, i, j) {
     ev.preventDefault()
 
     if (!gGame.isOn && gGame.reavealedCount !== 0) return
     const currCell = gBoard[i][j]
     if (currCell.isRevealed && !currCell.isMine) return
+
+    // undo function preperations:
+    const lastBoard = copyMat(gBoard)
+    const lastGGame = {
+        reavealedCount: gGame.reavealedCount,
+        markedCount: gGame.markedCount
+    }
+
+    gHistoryBoard.push(lastBoard)
+    gHistoryGame.push(lastGGame)
+    gGame.steps++
+
+    // end of undo preperations
+
     if (currCell.isRevealed && currCell.isMine) {
         onRightClickedMine(currCell, elCell)
     }
@@ -193,7 +252,6 @@ function onCellRightClicked(elCell, ev, i, j) {
     elCell.innerText = (currCell.isMarked) ? MARKED : ''
     checkGameOver(currCell)
 }
-
 
 function createRandomMines(board, row, col) {
     for (var i = 0; i < gLevel.MINES; i++) {
@@ -338,7 +396,6 @@ function updateLivesCounter() {
 
 }
 
-
 function startTimer() {
 
     gTimeNow = Date.now()
@@ -368,7 +425,7 @@ function onRestartClicked() {
 function createHints() {
     const hints = []
     for (var i = 0; i < 3; i++) {
-        hints.push('💡')
+        hints.push({ element: '💡', isUsed: false })
     }
     return hints
 }
@@ -376,29 +433,26 @@ function createHints() {
 function renderHints() {
     var strHTML = '<tr>'
     for (var i = 0; i < gHints.length; i++) {
-        strHTML += `<td class="hint-off" onclick = "onHintClicked(this,${i})" > ${gHints[i]}</td>`
+        strHTML += `<td class="hint-off hint-hover-effect" onclick = "onHintClicked(this,${i})" > ${gHints[i].element}</td>`
     }
     strHTML += '</tr>'
     const elHints = document.querySelector('.hints')
     elHints.innerHTML = strHTML
 }
 
-function onHintClicked(elHint) {
+function onHintClicked(elHint, i) {
     if (gGame.hintIsOn) return
+    if (gHints[i].isUsed) return
+    gHints[i].isUsed = true
     gGame.hintIsOn = true
+    console.log(gHints)
 
-    // elHint.innerText = ''
-    // elHint.classList.remove('hint-off')
     if (elHint.innerText) {
         elHint.classList.add('hint-on')
+        elHint.classList.remove('hint-hover-effect')
 
     }
-    // setTimeout(() => {
-    //     elHint.innerText = ''
-    //     elHint.classList.remove('hint-on')
-    //     gGame.hintIsOn = false
-    //     gHints.pop()
-    // }, 1500)
+
 }
 
 function onRightClickedMine(currCell, elCell) {
@@ -452,7 +506,7 @@ function revealNegs(i, j) {
                 elHintOn.innerText = ''
                 elHintOn.classList.remove('hint-on')
                 gGame.hintIsOn = false
-                gHints.pop()
+                // gHints.pop()
             }, 1500)
 
         }
@@ -503,6 +557,7 @@ function findSafeLocation(board) {
 
 function onManualyClicked() {
     if (gManualMines === 0) return
+    if (gGame.steps > 0) return
     renderElement('.modal-container', `Place ${gManualMines} mines`)
     gGame.isManualMode = true
 
@@ -540,17 +595,66 @@ function onDarkModeClicked(elBtn) {
 
 }
 
-function onUndoClicked() {
+function copyMat(board) {
 
-    gBoard = gHistoryBoard.pop()
-    console.log(gBoard)
-    const lastGGame = gHistoryGame.pop()
-    console.log(lastGGame)
+    var newMat = []
+    for (var i = 0; i < board.length; i++) {
+        newMat[i] = []
+        for (var j = 0; j < board[0].length; j++) {
 
-    gGame.reavealedCount = lastGGame.reavealedCount
-    gGame.markedCount = lastGGame.markedCount
+            const cellContent = {
+                isRevealed: board[i][j].isRevealed,
+                isMine: board[i][j].isMine,
+                isMarked: board[i][j].isMarked,
+                minesAroundCount: board[i][j].minesAroundCount
+            }
+            newMat[i][j] = cellContent
 
-    renderBoard()
+        }
+    }
+
+    return newMat
 
 }
 
+function onMegaHintClicked() {
+    if (gGame.megaCells.length > 1) return
+    gGame.isMegaHintOn = true
+    renderElement('.modal-container', 'Click top-left area')
+
+}
+
+function clickToRevealMega(location) {
+    const locations = gGame.megaCells
+    locations.push(location)
+    if (locations.length < 2) {
+        renderElement('.modal-container', 'Click area right-left')
+    }
+
+    else {
+        revealMegaHintCells(locations)
+    }
+
+}
+
+function revealMegaHintCells(locations) {
+    hideElement('.modal-container')
+    console.log(locations[0])
+    for (var i = locations[0].i; i <= locations[1].i; i++) {
+        for (var j = locations[0].j; j <= locations[1].j; j++) {
+            const currCell = gBoard[i][j]
+            if (currCell.isMarked) continue
+            if (currCell.isRevealed) continue
+            const elCell = document.querySelector(`.cell-${i}-${j} `)
+            elCell.innerText = (currCell.isMine) ? MINE : (currCell.minesAroundCount === 0) ? '' : currCell.minesAroundCount
+            elCell.classList.add('revealed-hint')
+
+            setTimeout(() => {
+                elCell.innerText = (elCell.innerText === MARKED) ? MARKED : ''
+                elCell.classList.remove('revealed-hint')
+            }
+                , 2000)
+        }
+    }
+    gGame.isMegaHintOn = false
+}

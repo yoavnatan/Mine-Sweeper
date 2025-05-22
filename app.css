@@ -6,8 +6,21 @@ body {
     align-items: center;
     display: flex;
     flex-direction: column;
+    /* font-family: 'Courier New', Courier, monospace; */
+
 
 }
+
+button {
+    cursor: pointer;
+}
+
+.header {
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+
 
 .body-dark-on {
     background-color: rgb(0, 93, 40);
@@ -23,13 +36,14 @@ body {
 .hints {
     /* width: 30px; */
     /* height: 20px; */
-    margin-left: 8px;
+    margin-left: 58px;
     text-align: center;
     border: 2px solid gray;
     background-color: black;
 }
 
 .hint-off {
+    cursor: pointer;
     width: 30px;
     height: 20px;
     /* background-color: rgb(11, 11, 11); */
@@ -54,6 +68,7 @@ body {
     text-align: center;
     background-color: rgb(94, 185, 255);
     border: 2px ridge black;
+    font-weight: bold;
 }
 
 .hover-effect:hover {
@@ -136,4 +151,17 @@ body {
 .dark-mode-btn-on {
     background-color: whitesmoke;
     color: grey;
+}
+
+.undo-btn {
+    background-color: lightblue;
+}
+
+.mega-hint-btn {
+    background-color: black;
+    color: white;
+}
+
+.hint-hover-effect:hover {
+    background-color: lightcoral;
 }

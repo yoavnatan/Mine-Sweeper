@@ -38,6 +38,7 @@ function renderCell(location, value) { //{i,j}, value to render in the cell
     const cellSelector = `.` + getClassName(location)
 
     const elCell = document.querySelector(cellSelector)
+    elCell.classList.remove('value')
     elCell.innerText = value
 
 }
