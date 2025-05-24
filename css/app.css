@@ -15,11 +15,14 @@ button {
     cursor: pointer;
 }
 
+.smiley-button {
+    font-size: 20px;
+}
+
 .header {
     font-weight: bold;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
-
 
 
 .body-dark-on {
@@ -36,7 +39,7 @@ button {
 .hints {
     /* width: 30px; */
     /* height: 20px; */
-    margin-left: 58px;
+    margin-left: 108px;
     text-align: center;
     border: 2px solid gray;
     background-color: black;
@@ -110,9 +113,11 @@ button {
     background-color: #1e00ff;
     height: 50px;
     color: rgb(255, 255, 255);
-    padding-bottom: 20px;
+    padding-bottom: 33px;
     margin: 10px;
     width: 410px;
+
+
     /* position: relative; */
     /* left: 30px; */
     /* position: absolute; */
@@ -121,6 +126,7 @@ button {
 
 .modal-container-dark-on {
     background-color: yellowgreen;
+    /* background-color: white; */
     color: black;
 }
 
@@ -164,4 +170,19 @@ button {
 
 .hint-hover-effect:hover {
     background-color: lightcoral;
+}
+
+.mine-extreminator-btn {
+    background-color: black;
+    color: white;
+}
+
+.lives-counter {
+    border: dashed 2px;
+    padding: 5px;
+
+    /* font-weight: bold; */
+    /* width: 200px; */
+    /* /* padding: 10px; * */
+    /* text-align: center; */
 }

@@ -20,19 +20,20 @@ var begginer = {
 
 }
 var interMediate = {
-    SIZE: 6,
-    MINES: 5,
+    SIZE: 8,
+    MINES: 14,
     bestScore: localStorage.getItem('intermediate'),
 }
 var expert = {
     SIZE: 12,
-    MINES: 9,
+    MINES: 32,
     bestScore: localStorage.getItem('expert'),
 }
 var gLevel = begginer
 
 
 function onInit(level) {
+    // localStorage.clear()
     stopTimer()
     gLevel = level
     gManualMines = level.MINES
@@ -41,11 +42,13 @@ function onInit(level) {
         reavealedCount: 0,
         markedCount: 0,
         secsPassed: 0,
-        lives: 2,
+        lives: 3,
+        mines: gLevel.MINES,
         hintIsOn: false,
         isMegaHintOn: false,
         megaCells: [],
         isManualMode: false,
+        extreminatorIsUsed: false,
         steps: 0,
 
     }
@@ -140,18 +143,7 @@ function onCellClicked(elCell, i, j) {
         return
     }
 
-    // undo function preperations:
-    const lastBoard = copyMat(gBoard)
-    const lastGGame = {
-        reavealedCount: gGame.reavealedCount,
-        markedCount: gGame.markedCount
-    }
-
-    gHistoryBoard.push(lastBoard)
-    gHistoryGame.push(lastGGame)
-    gGame.steps++
-
-    // end of undo preperations
+    prepareUndoFunc()
 
     if (!gGame.isOn) {
         createMines(gBoard, i, j)
@@ -193,6 +185,20 @@ function onCellClicked(elCell, i, j) {
     checkGameOver(currCell)
 }
 
+function prepareUndoFunc() {
+
+    const lastBoard = copyMat(gBoard)
+    const lastGGame = {
+        reavealedCount: gGame.reavealedCount,
+        markedCount: gGame.markedCount
+    }
+
+    gHistoryBoard.push(lastBoard)
+    gHistoryGame.push(lastGGame)
+    gGame.steps++
+
+}
+
 function onUndoClicked() {
     if (gGame.reavealedCount === 0) return
     if (gGame.steps === 1) {
@@ -227,18 +233,8 @@ function onCellRightClicked(elCell, ev, i, j) {
     const currCell = gBoard[i][j]
     if (currCell.isRevealed && !currCell.isMine) return
 
-    // undo function preperations:
-    const lastBoard = copyMat(gBoard)
-    const lastGGame = {
-        reavealedCount: gGame.reavealedCount,
-        markedCount: gGame.markedCount
-    }
+    if (gGame.isOn) prepareUndoFunc()
 
-    gHistoryBoard.push(lastBoard)
-    gHistoryGame.push(lastGGame)
-    gGame.steps++
-
-    // end of undo preperations
 
     if (currCell.isRevealed && currCell.isMine) {
         onRightClickedMine(currCell, elCell)
@@ -254,7 +250,7 @@ function onCellRightClicked(elCell, ev, i, j) {
 }
 
 function createRandomMines(board, row, col) {
-    for (var i = 0; i < gLevel.MINES; i++) {
+    for (var i = 0; i < gGame.mines; i++) {
 
         const emptylocation = findEmptyLocation(board, row, col)
         const emptyCell = board[emptylocation.i][emptylocation.j]
@@ -297,44 +293,64 @@ function checkGameOver(currCell) {
 
 
     if (currCell.isMine && gGame.lives === 0) {
-        renderElement('.modal-container', 'Game-Over')
-        gGame.isOn = false
-        revealAllMines(gBoard)
-        const elSmileyButton = document.querySelector('.smiley-button')
-        elSmileyButton.innerText = '🤯'
-        stopTimer()
+        handleLose()
         return
     }
-    if (gGame.reavealedCount === gLevel.SIZE ** 2 - gLevel.MINES
-        && gGame.markedCount === gLevel.MINES) {
-        renderElement('.modal-container', 'YOU WON!!!')
-        const elSmileyButton = document.querySelector('.smiley-button')
-        elSmileyButton.innerText = '😎'
-        gGame.isOn = false
-        stopTimer()
-
-        var levelName = ''
-        switch (gLevel.SIZE) {
-            case 4: levelName = 'begginer'
-                break
-            case 6: levelName = 'intermediate'
-                break
-            case 12: levelName = 'expert'
-                break
-        }
-
-        const score = gGame.secsPassed
-        console.log('score', score)
-        const bestScore = (localStorage.getItem(levelName)) ? localStorage.getItem(levelName) : Infinity
-        if (score < bestScore) {
-            localStorage.setItem(levelName, score)
-            console.log(localStorage)
-            gLevel.bestScore = score
-        }
-        const elBestScore = document.querySelector('.best-score span')
-        elBestScore.innerText = gLevel.bestScore
+    if (gGame.reavealedCount === gLevel.SIZE ** 2 - gGame.mines
+        && gGame.markedCount === gGame.mines) {
+        handleWin()
+        updateBestScore()
 
     }
+
+
+}
+
+function handleLose() {
+
+    renderElement('.modal-container', 'GAME OVER')
+    gGame.isOn = false
+    revealAllMines(gBoard)
+    const elSmileyButton = document.querySelector('.smiley-button')
+    elSmileyButton.innerText = '🤯'
+    stopTimer()
+
+
+}
+
+function handleWin() {
+
+    renderElement('.modal-container', 'YOU WON!!!')
+    const elSmileyButton = document.querySelector('.smiley-button')
+    elSmileyButton.innerText = '😎'
+    gGame.isOn = false
+    stopTimer()
+
+}
+
+function updateBestScore() {
+
+
+    var levelName = ''
+    switch (gLevel.SIZE) {
+        case 4: levelName = 'begginer'
+            break
+        case 6: levelName = 'intermediate'
+            break
+        case 12: levelName = 'expert'
+            break
+    }
+
+    const score = gGame.secsPassed
+    console.log('score', score)
+    const bestScore = (localStorage.getItem(levelName)) ? localStorage.getItem(levelName) : Infinity
+    if (score < bestScore) {
+        localStorage.setItem(levelName, score)
+        console.log(localStorage)
+        gLevel.bestScore = score
+    }
+    const elBestScore = document.querySelector('.best-score span')
+    elBestScore.innerText = gLevel.bestScore
 
 
 }
@@ -345,12 +361,18 @@ function createMines(board, row, col) {
 
     // board[0][0].isMine = board[2][2].isMine = true //disable if random mines is on
 
+    countNegsMines()
+
+
+}
+function countNegsMines() {
+
+
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
-            board[i][j].minesAroundCount = setMinesNegsCount(board, i, j)
+            gBoard[i][j].minesAroundCount = setMinesNegsCount(gBoard, i, j)
         }
     }
-
 }
 
 function revealAllMines(board) { //can be optimized
@@ -581,6 +603,7 @@ function onDarkModeClicked(elBtn) {
 
     gIsDarkMode = !gIsDarkMode
     document.querySelector('body').classList.toggle('body-dark-on')
+    document.querySelector('.modal-container').classList.toggle('modal-container-dark-on')
     // elBtn.classList.toggle('dark-mode-btn')
     elBtn.classList.toggle('dark-mode-btn-on')
     if (gIsDarkMode) elBtn.innerText = 'Undark Mode'
@@ -657,4 +680,44 @@ function revealMegaHintCells(locations) {
         }
     }
     gGame.isMegaHintOn = false
+}
+
+function onExtreminatorClicked() {
+    if (!gGame.isOn) return
+    if (gLevel === begginer) return
+    if (gGame.extreminatorIsUsed) return
+    const minesLocations = []
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (gBoard[i][j].isMine && !gBoard[i][j].isMarked) {
+                const currLocation = { i, j }
+                minesLocations.push(currLocation)
+            }
+        }
+    }
+    if (minesLocations.length < 3) return
+    for (var i = 0; i < 3; i++) {
+        const randIdx = getRandomInt(0, minesLocations.length)
+        const randomMineLocation = minesLocations.splice([randIdx], 1)[0]
+        const currMineCell = gBoard[randomMineLocation.i][randomMineLocation.j]
+        currMineCell.isMine = false
+    }
+
+    gGame.mines = gGame.mines - 3
+    countNegsMines()
+
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            const currCell = gBoard[i][j]
+            if (currCell.isRevealed && currCell.minesAroundCount > 0) {
+                const cellSelector = `.` + getClassName({ i, j })
+                const elCell = document.querySelector(cellSelector)
+                elCell.innerText = (`${currCell.minesAroundCount}`)
+            }
+        }
+    }
+
+    gGame.extreminatorIsUsed = true
+    renderElement('.modal-container', '3 MINES ELIMINATED')
+    setTimeout(() => { hideElement('.modal-container') }, 2000)
 }
